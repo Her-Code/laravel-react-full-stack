@@ -1,5 +1,6 @@
 import { Feature } from "@/types";
 import { useState } from "react";
+import FeatureActionDropdown from "./FeatureActionDropdown";
 
 export default function FeatureItem({feature}: {feature:Feature}) {
 
@@ -60,11 +61,11 @@ export default function FeatureItem({feature}: {feature:Feature}) {
                 <p>{feature.description}</p>
               )}
               
-             
-
-            </div>
+             </div>
+             <div>
+              <FeatureActionDropdown feature={feature}/>
+             </div>
         </div>
-
     </div>
 
     );

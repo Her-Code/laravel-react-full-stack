@@ -9,18 +9,26 @@ import TextAreaInput  from '@/Components/TextAreaInput';
 import InputError  from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Show() {
+export default function Show({feature}: {feature: Feature }) {
 
-    const{data,setData,processing,errors,post} = useForm({
-        name:'',
-        description:'',
+    if (!feature) {
+        return (
+            <div>
+                <p>Loading feature...</p> {/* Or handle error */}
+            </div>
+        );
+    }
+
+    const{data,setData,processing,errors,put} = useForm({
+        name: feature.name,
+        description: feature.description,
     })
 
-    const createFeature:FormEventHandler = (ev) =>{
+    const updateFeature:FormEventHandler = (ev) =>{
 
         ev.preventDefault();
 
-        post(route('feature.store'),{
+        put(route('feature.update',feature.id),{
             preserveScroll:true
         })
 
@@ -30,17 +38,17 @@ export default function Show() {
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Create New Feature
+                    Edit Feature<b>"{feature.name}"</b>
                 </h2>
             }
         >
-            <Head title="Create New Feature"/>
+            <Head title={'Edit Feature' + feature.name}/>
 
 
             <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
          <div className="p-6 text-gray-900 dark:text-gray-100 flex gap-8">
           
-          <form onSubmit={createFeature} className="W-full">
+          <form onSubmit={updateFeature} className="w-full">
 
             <div className="mb-8"> 
                                 
@@ -64,6 +72,7 @@ export default function Show() {
                             
                 <TextAreaInput
                     id="description"
+                    rows={6}
                     className="mt-1 block w-full"
                     value={data.description}
                     onChange={(e) => setData('description', e.target.value)}
