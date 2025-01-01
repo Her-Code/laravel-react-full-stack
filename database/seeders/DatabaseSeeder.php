@@ -9,6 +9,7 @@ use App\EnumPermissionsEnum;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use App\Models\Feature;
 
 class DatabaseSeeder extends Seeder
 {
@@ -53,6 +54,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin User',
             'email' => 'admin@example.com',
         ])->assignRole(EnumRolesEnum::Admin);
+
+        Feature::factory(100)->create();
   
     }
 }
