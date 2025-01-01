@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Feature extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['name','description','user_id'];
+    
+
     public function upvotes():HasMany
     {
         return $this->hasMany(Upvote::class);
