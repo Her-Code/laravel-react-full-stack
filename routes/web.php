@@ -22,7 +22,7 @@ Route::middleware('auth')->group(function () {
         })->name('dashboard');
 
         // Feature Route
-        Route::get('/feature', [FeatureController::class, 'index'])->name('feature.index');
+        Route::resource('feature',FeatureController::class);
     });
 });
 
