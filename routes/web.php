@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\FeatureController;
+use App\Http\Controllers\UpvoteController;
 
 Route::redirect('/', '/dashboard');
 
@@ -23,6 +24,12 @@ Route::middleware('auth')->group(function () {
 
         // Feature Route
         Route::resource('feature',FeatureController::class);
+
+        Route::post('/feature/{feature}/upvote', [UpvoteController::class,'store'])
+            ->name('upvote.store');
+
+        Route::delete('/upvote/{feature}', [UpvoteController::class,'destroy'])
+            ->name('upvote.destroy');
     });
 });
 
