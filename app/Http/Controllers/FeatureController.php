@@ -6,6 +6,11 @@ use App\Models\Feature;
 use Illuminate\Http\Request;
 use Inertia\Inertia; 
 use App\Http\Resources\FeatureResource;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Upvote;
+
+
 
 class FeatureController extends Controller
 {
@@ -13,8 +18,44 @@ class FeatureController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $paginated = Feature::latest()->paginate();
+    {  
+        $currentUserId = Auth::user()->id;
+
+        $paginated = Feature::latest()
+            ->withCount(['upvotes as upvote_count' => function($query){
+                $query->select(DB::raw('SUM(CASE WHEN upvote = 1 THEN 1 ELSE -1 END)'));
+            }])
+            ->withExists([
+                'upvotes as user_has_upvoted' => function($query) use($currentUserId){
+                    $query->where('user_id', $currentUserId)
+                        ->where('upvote', 1);
+                },
+                'upvotes as user_has_downvoted' => function($query) use($currentUserId) {
+                    $query->where('user_id', $currentUserId)
+                        ->where('upvote', 0);
+                }
+            ])
+            ->paginate();
+        // $paginated = Feature::latest()
+
+        //     ->withCount(['upvotes as upvote_count' => function($query){
+        //         $query->select(DB::raw('SUM(CASE WHEN upvote = 1 THEN 1 ELSE -1 END)'));
+        //     }])
+        //     -> withExists([
+        //         'upvotes as user has upvoted' => function($query) use($currentUserId){
+        //             $query->where('user_id',$currentUserId)
+        //                 ->where('upvote',1);
+
+        //         },
+        //         'upvotes as user has downvoted' => function($query)use($currentUserId) {
+
+        //             $query->where('user_id',$currentUserId)
+        //                  ->where('upvote',0);
+
+        //         }
+
+        // ])
+        // ->paginate();
 
         return Inertia::render('Feature/Index', [
             'features' => FeatureResource::collection($paginated),
@@ -54,6 +95,20 @@ class FeatureController extends Controller
      */
     public function show(Feature $feature)
     {
+        $feature->upvote_count = Upvote::where('feature_id', $feature->id)
+            ->sum(DB::raw('CASE WHEN upvote = 1 THEN 1 ELSE -1 END'));
+       
+        $feature->user_has_upvoted= Upvote::where('feature_id', $feature->id)
+            ->where('user_id', auth()->id())
+            ->where('upvote',1)
+            ->exists();
+
+        $feature->user_has_downvoted= Upvote::where('feature_id', $feature->id)
+            ->where('user_id', auth()->id())
+            ->where('upvote',0)
+            ->exists();
+
+        // dd($feature);
         return Inertia::render('Feature/Show', ['feature' => new FeatureResource($feature)
     ]);
     }
